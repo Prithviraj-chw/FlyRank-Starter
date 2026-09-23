@@ -1,0 +1,44 @@
+{
+  "population": {
+    "march_eligible": 116512,
+    "feb_eligible": 93871,
+    "eligible_pct_change_feb_to_march": 0.2412
+  },
+  "model": {
+    "type": "logistic_regression",
+    "features": [
+      "gsc_impressions",
+      "gsc_clicks",
+      "gsc_avg_position",
+      "ga4_sessions",
+      "ga4_engaged_sessions",
+      "ctr",
+      "engagement_rate",
+      "peer_avg_ctr"
+    ],
+    "trained_on_rows": 28805,
+    "validated_precision_at_50_client_grouped": 0.592,
+    "validated_precision_at_50_honest_split_range": [
+      0.58,
+      0.6
+    ],
+    "rule_baseline_precision_at_50": 0.472
+  },
+  "archetype_mapping": {
+    "high_risk_cutoff": 0.6084,
+    "high_risk_cutoff_definition": "top 10th percentile of logreg_prob, recomputed each run",
+    "archetype_counts": {
+      "flagged_lower_urgency": 76547,
+      "stable": 28313,
+      "confirmed_risk": 11210,
+      "quiet_riser": 442
+    }
+  },
+  "decay_monitoring": {
+    "feb_to_march_base_rate": 0.3126,
+    "march_to_april_base_rate": 0.5447,
+    "observed_shift": 0.2321,
+    "proposed_alarm_threshold": 0.15,
+    "would_have_fired": true
+  }
+}

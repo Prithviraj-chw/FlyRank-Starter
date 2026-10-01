@@ -1,0 +1,17 @@
+{
+  "eligible_pages": 116512,
+  "labelable_pages": 28805,
+  "base_rate": 0.545,
+  "precision_at_50": {
+    "rule": 0.472,
+    "logreg": 0.592,
+    "rf": 0.56
+  },
+  "high_risk_cutoff": 0.6084,
+  "archetype_counts": {
+    "flagged_lower_urgency": 76547,
+    "stable": 28313,
+    "confirmed_risk": 11210,
+    "quiet_riser": 442
+  }
+}

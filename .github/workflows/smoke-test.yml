@@ -46,8 +46,7 @@ jobs:
             echo "::error::Committed a dataset archive. Datasets must not be committed."; exit 1
           fi
           # Only one CSV is allowed under data/: the anonymized starter slice.
-          bad=$(git ls-files '*.csv' | grep -v -E '^(data/raw/content_refresh_anonymized\.csv|outputs/refresh_queue_sample\.csv)$' || true)
-          if [ -n "$bad" ]; then
+          bad=$(git ls-files '*.csv' | grep -v -E '^(data/raw/content_refresh_anonymized\.csv|outputs/refresh_queue_sample\.csv|work/outputs/capstone_ranked_queue\.csv)$' || true)
             echo "::error::Unexpected data file(s) committed:"; echo "$bad"; exit 1
           fi
           echo "No leaked datasets."

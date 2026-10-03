@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refresh Priority Scoring — FlyRank ML Internship Capstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F3EA;
+    --ink: #241F1B;
+    --ink-soft: #655C52;
+    --rust: #9C5530;
+    --rule: #D8CEBC;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 700px; margin: 0 auto; padding: 0 24px; }
+
+  h1, h2, h3 {
+    font-family: 'Spectral', Georgia, serif;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+
+  /* ---- masthead ---- */
+  header.masthead { padding: 80px 0 36px; }
+  .kicker {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+  }
+  h1.title {
+    font-size: 36px;
+    font-weight: 600;
+    margin: 0 0 18px;
+    max-width: 15ch;
+  }
+  .subtitle {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink-soft);
+    margin: 0 0 26px;
+    max-width: 46ch;
+  }
+  .byline { font-size: 15px; color: var(--ink-soft); }
+  .byline a { color: var(--ink-soft); }
+  .byline strong { color: var(--ink); font-weight: 600; }
+
+  hr.rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+    width: 64px;
+    margin-left: 0;
+  }
+  hr.rule.full { width: 100%; margin: 44px 0; }
+
+  /* ---- abstract ---- */
+  .abstract { margin: 30px 0 0; }
+  .abstract .label {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--rust);
+    margin-bottom: 10px;
+  }
+  .abstract p {
+    margin: 0;
+    font-size: 19px;
+    font-family: 'Spectral', serif;
+    color: var(--ink);
+  }
+
+  /* ---- sections ---- */
+  section { padding: 50px 0; }
+
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+  .sec-num {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--rust);
+    white-space: nowrap;
+  }
+  h2.section-title { font-size: 25px; margin: 0; }
+  h3 { font-size: 17px; font-weight: 600; margin: 30px 0 10px; font-style: italic; }
+
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+
+  a { color: var(--rust); text-decoration-color: rgba(156,85,48,0.4); }
+  a:hover { text-decoration-color: var(--rust); }
+
+  code {
+    font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+    font-size: 0.87em;
+    color: var(--rust);
+  }
+
+  strong { font-weight: 600; }
+
+  /* ---- pull quotes (replaces callout boxes) ---- */
+  blockquote.pull {
+    margin: 28px 0;
+    padding-left: 22px;
+    border-left: 1px solid var(--ink);
+    font-family: 'Spectral', serif;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  blockquote.pull .tag {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-style: normal;
+  }
+  blockquote.pull p { margin: 0; }
+
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 15px; }
+  caption { text-align: left; font-size: 13.5px; color: var(--ink-soft); margin-bottom: 10px; font-style: italic; font-family: 'Spectral', serif; }
+  th, td { text-align: left; padding: 8px 10px 8px 0; }
+  th { font-weight: 600; font-size: 13px; color: var(--ink-soft); border-bottom: 1px solid var(--ink); padding-bottom: 8px; }
+  td { border-bottom: 1px solid var(--rule); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.highlight td { font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+
+  /* ---- figures ---- */
+  figure { margin: 30px 0; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--rule); display: block; }
+  figcaption {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+  }
+
+  /* ---- archetype list (replaces card grid) ---- */
+  dl.archetypes { margin: 24px 0; }
+  dl.archetypes div { display: flex; gap: 18px; padding: 12px 0; border-top: 1px solid var(--rule); align-items: baseline; }
+  dl.archetypes div:last-child { border-bottom: 1px solid var(--rule); }
+  dl.archetypes dt {
+    font-family: 'Spectral', serif;
+    font-weight: 600;
+    font-size: 15px;
+    min-width: 170px;
+  }
+  dl.archetypes .n {
+    font-family: 'Spectral', serif;
+    font-size: 15px;
+    color: var(--rust);
+    min-width: 72px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  dl.archetypes dd { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+
+  /* ---- repro ---- */
+  .repro-links { display: flex; flex-direction: column; gap: 9px; margin: 22px 0 0; }
+  .repro-links a { font-size: 15px; }
+
+  footer { padding: 36px 0 76px; font-size: 14px; color: var(--ink-soft); font-style: italic; font-family: 'Spectral', serif; }
+  footer a { color: var(--ink-soft); }
+
+  @media (max-width: 600px) {
+    h1.title { font-size: 29px; }
+    body { font-size: 16px; }
+    dl.archetypes div { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">FlyRank ML Internship · Lane 2 Capstone</div>
+    <h1 class="title">Does a model beat a hand-written rule at flagging declining content?</h1>
+    <p class="subtitle">A validated comparison of a rule-based heuristic against logistic regression and random forest, scored on held-out clients.</p>
+    <p class="byline">By <strong>Prithviraj Chowdhury</strong> · March 2026 data · 116,512 pages scored · <a href="https://github.com/Prithviraj-chw/FlyRank-Starter">repository</a></p>
+    <hr class="rule">
+  </header>
+
+  <div class="abstract">
+    <div class="label">Abstract</div>
+    <p>Can page-level performance signals identify declining content pages better than a simple hand-written rule? Using FlyRank's March 2026 warehouse data, I built a rule-based baseline and two supervised models (logistic regression, random forest), validated with 5-fold client-grouped cross-validation to prevent leakage across clients. Under this honest split, the rule's top-ranked pages performed <em>below</em> a random pick (Precision@50 of 0.472 vs. a 0.545 base rate), while logistic regression reached 0.592 — a directional improvement, though one that varied widely by fold (0.42–0.78). The validated model now ranks the full 116,512-page population into a human-reviewed action queue, with monitoring checks that flag when the queue has gone stale. This is decision-support evidence from a single validated run, not a causal claim about what drives declines or a guarantee that refreshing a flagged page recovers its clicks.</p>
+  </div>
+
+  <div class="abstract" style="margin-top:34px;">
+    <div class="label">Claims</div>
+    <ol>
+      <li><strong>The model beats the rule at Precision@50, but not in every fold.</strong> Logistic regression's observed mean (0.592) is higher than the rule's (0.472) across 5 client-grouped folds, and it won 4 of 5 individually — but the rule won the fifth. See <a href="#results">Results</a>.</li>
+      <li><strong>The split is what makes this credible, not the model.</strong> A separate, earlier audit of this same kind of model (Week 6, before this capstone) scored a random forest at Precision@10 of 0.90 under a naive random split, and 0.58 once re-evaluated with client grouping. That gap is why every number in this paper comes from <code>GroupKFold</code> on <code>client_hash_id</code>. See <a href="#methodology">Methodology</a>.</li>
+      <li><strong>The queue's base rate moved a lot in one month, and a proposed monitor would have caught it.</strong> Feb→March decline rate was 0.313; March→April was 0.545 — identical rule, identical label definition. See <a href="#recommendations">Recommendations</a>.</li>
+    </ol>
+  </div>
+
+  <hr class="rule full">
+
+  <section id="intro">
+    <div class="sec-head"><span class="sec-num">I.</span><h2 class="section-title">Introduction</h2></div>
+    <p><strong>Research question:</strong> among FlyRank's tracked content pages, can page-level performance signals — position, CTR, engagement, historical trend — identify which pages are declining and worth a refresh, better than a simple hand-written rule?</p>
+    <p><strong>Decision this supports:</strong> prioritizing a content team's limited refresh capacity. Instead of reviewing pages in an arbitrary or purely recency-based order, a reviewer works down a ranked queue of <code>snippet_fix</code>, <code>content_fix</code>, and <code>monitor</code> actions, each with a stated reason.</p>
+    <p>The existing baseline — a Week 4 rule that flags pages on low CTR relative to position peers, or low engagement — is explainable but untested against an honest validation split. This paper asks whether a learned model, evaluated the right way, actually improves on it, and is explicit about where it doesn't.</p>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="data">
+    <div class="sec-head"><span class="sec-num">II.</span><h2 class="section-title">Data</h2></div>
+    <p><strong>Release:</strong> <code>FlyRank/internship-warehouse</code> (Hugging Face) — <code>fact_content_daily_performance</code>, joined with <code>dim_content</code> and <code>dim_clients</code>.</p>
+    <p><strong>Window used:</strong> March 2026 daily performance, aggregated to one row per (client, page). April's click totals were pulled separately, used only to construct the outcome label.</p>
+    <p>331,437 pages were aggregated; 116,512 met the eligibility bar, and 28,805 of those (24.7%) could be labeled.</p>
+    <p><strong>Eligibility filter:</strong> ≥50 GSC impressions OR ≥10 GA4 sessions. Pages below this threshold are too sparse to score reliably — a single visitor can swing an engagement rate from 0% to 100%.</p>
+    <p><strong>Excluded:</strong> raw client and domain identifiers (only <code>client_hash_id</code> / <code>content_hash_id</code> used throughout); any page not meeting the eligibility filter.</p>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="methodology">
+    <div class="sec-head"><span class="sec-num">III.</span><h2 class="section-title">Methodology</h2></div>
+
+    <h3>Label</h3>
+    <p><code>decline_label = 1</code> if a page's April clicks fall below 80% of its March clicks. A page is labeled only if it is still tracked in April (all 116,512 eligible pages were) and had at least 5 March clicks, so the ratio isn't driven by noise in tiny counts. This left 28,805 labelable pages, at a 0.545 base rate.</p>
+
+    <h3>Features</h3>
+    <p>All March-only, known before the decision point: <code>gsc_impressions</code>, <code>gsc_clicks</code>, <code>gsc_avg_position</code>, <code>ga4_sessions</code>, <code>ga4_engaged_sessions</code>, <code>ctr</code>, <code>engagement_rate</code>, <code>peer_avg_ctr</code>, plus position-bucket dummies.</p>
+
+    <h3>Baseline</h3>
+    <p>The Week 4 hand-written rule: <code>snippet_fix</code> if CTR is below half the position-peer average, else <code>content_fix</code> if engagement rate is below 10% (minimum 10 sessions), else <code>monitor</code>. Its ranking score is the estimated clicks recoverable — a different scale for each branch, with an unvalidated weighting between them (discussed in Limitations).</p>
+
+    <h3>Models</h3>
+    <p>Logistic regression (simple, inspectable) and random forest (can catch interactions), trained on the same features and label.</p>
+
+    <h3>Validation design</h3>
+    <p>5-fold <code>GroupKFold</code> on <code>client_hash_id</code> — no client appears in both train and test, verified with a zero-overlap assertion on every fold. All three methods are scored on the identical folds. Primary metric is Precision@50 (of the top 50 ranked pages, what share actually declined), with @10 and @100 as side checks.</p>
+
+    <h3>Leakage checks</h3>
+    <ol>
+      <li><strong>Label leakage</strong> — neither <code>decline_label</code> nor April clicks appear in the feature set.</li>
+      <li><strong>Future leakage</strong> — every feature traces back to March-only data.</li>
+      <li><strong>Downstream leakage</strong> — the rule's outputs are never used as model inputs.</li>
+      <li><strong>Injection test</strong> — a deliberately planted label copy pushes the model's score toward 1.0, confirming the audit can actually catch a leak.</li>
+    </ol>
+
+    <blockquote class="pull">
+      <span class="tag">Why client-grouped, specifically</span>
+      <p>This is a separate, earlier test — not part of this capstone's main result — but it's why the split above is non-negotiable. In a Week 6 audit of this same modeling approach, a random forest scored 0.90 Precision@10 under a naive random row split, and 0.58 once re-evaluated with <code>GroupKFold</code> on client. The same client's pages leaking across train and test inflates every metric; grouping by client is what makes the numbers in this paper mean what they claim to mean.</p>
+    </blockquote>
+
+    <blockquote class="pull">
+      <span class="tag">Disclosed caveat</span>
+      <p><code>gsc_clicks</code> and <code>ctr</code> are close relatives of the label — both are derived from March clicks. They're known before the decision point, so they're kept, but Results reports a sensitivity check on how much the model leans on them.</p>
+    </blockquote>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="results">
+    <div class="sec-head"><span class="sec-num">IV.</span><h2 class="section-title">Results</h2></div>
+    <p>All three methods scored on the same 28,805 labeled pages, averaged across the 5 client-held-out folds:</p>
+
+    <div class="table-scroll">
+    <table>
+      <caption>Precision at K, averaged across 5 folds. Base rate (random-pick precision) is 0.545.</caption>
+      <thead>
+        <tr><th>Method</th><th class="num">P@10</th><th class="num">P@50</th><th class="num">P@100</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Rule (baseline)</td><td class="num">0.480</td><td class="num">0.472</td><td class="num">0.498</td></tr>
+        <tr class="highlight"><td>Logistic regression</td><td class="num">0.580</td><td class="num">0.592</td><td class="num">0.574</td></tr>
+        <tr><td>Random forest</td><td class="num">0.600</td><td class="num">0.560</td><td class="num">0.566</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p>Precision@50 varies by fold — it is not a fixed quantity. Sample standard deviation across the 5 client-grouped folds: rule ±0.14, logistic regression ±0.14, random forest ±0.22. This is spread across client groups, not a confidence interval, and it's wide enough that "0.592" should be read as the center of a band, not a precise measurement.</p>
+
+    <figure>
+      <img src="work/figures/capstone_precision_comparison.png" alt="Bar chart comparing Precision@50 for the rule, logistic regression, and random forest against the 0.545 random-pick base rate.">
+      <figcaption>Fig. 1 — Precision@50 by method (higher is better), same client-grouped folds, against the random-pick base rate. Supports Claim 1.</figcaption>
+    </figure>
+
+    <blockquote class="pull">
+      <span class="tag">Headline finding</span>
+      <p>The rule's top-ranked pages declined <em>less often</em> than a random pick (0.472 vs. 0.545). Under this honest split, the existing baseline does not beat chance at Precision@50.</p>
+    </blockquote>
+
+    <p>Logistic regression beat the rule in 4 of 5 held-out-client folds, by about 12 points on average. Random forest also beat the rule in 4 of 5 folds but trailed logistic regression at P@50 and P@100, leading only at P@10. Logistic regression is the model carried forward to the ranked queue: it matched or beat the forest on the primary metrics and is easier to explain to a reviewer.</p>
+
+    <h3>Interpretation</h3>
+    <p>Standardized logistic regression coefficients, ranked by magnitude (positive pushes toward "declining"):</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Feature</th><th class="num">Coefficient</th></tr></thead>
+      <tbody>
+        <tr><td>gsc_clicks</td><td class="num">−0.266</td></tr>
+        <tr><td>gsc_avg_position</td><td class="num">−0.191</td></tr>
+        <tr><td>ga4_engaged_sessions</td><td class="num">+0.119</td></tr>
+        <tr><td>ctr</td><td class="num">−0.102</td></tr>
+        <tr><td>gsc_impressions</td><td class="num">+0.081</td></tr>
+        <tr><td>ga4_sessions</td><td class="num">−0.081</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The three strongest signals all point the same direction: more clicks, a better position, and a higher CTR each push a page <em>away</em> from the "declining" label. This isn't a new finding so much as the mechanism behind a caveat already raised in Limitations — smaller, lower-traffic pages have noisier click ratios, so they're more likely to cross the 80% decline threshold by chance alone, independent of anything actually changing about the page.</p>
+    <p><strong>A result worth flagging rather than smoothing over:</strong> <code>ga4_sessions</code> is negative while the closely related <code>ga4_engaged_sessions</code> is positive. Two correlated session-count columns pointing in opposite directions is a collinearity symptom, not evidence that "engaged sessions specifically predict decline" — the model is splitting one real signal across two columns in a way that makes the individual signs unreliable. The ranking by magnitude is more trustworthy than any single coefficient's sign.</p>
+
+    <h3>Sensitivity check</h3>
+    <p>With matched random seeds on both runs, removing <code>gsc_clicks</code> and <code>ctr</code> changed random forest's Precision@50 from 0.560 to 0.556 — a negligible difference. In this run, the model does not appear to depend heavily on the two label-adjacent features.</p>
+
+    <h3>Read</h3>
+    <p>Under a client-grouped split, the model shows a directional improvement over the rule. The size of that improvement varies a lot by fold — logistic regression's Precision@50 ranged from 0.42 to 0.78 across the 5 folds. With a single run per fold, this is decision-support evidence, not a precise performance estimate. See Limitations for the full spread.</p>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="limitations">
+    <div class="sec-head"><span class="sec-num">V.</span><h2 class="section-title">Limitations</h2></div>
+
+    <p>What this work can and cannot claim:</p>
+
+    <blockquote class="pull">
+      <span class="tag">Decision-support, not causation</span>
+      <p>A high score means a page matches a pattern that preceded click declines in this data. It does not show that anything is broken on the page, or that refreshing it would recover clicks.</p>
+    </blockquote>
+
+    <ul>
+      <li><strong>The label is a click ratio, not a diagnosis.</strong> April clicks below 80% of March's catches seasonal dips and ranking noise alongside real declines. Only one month pair is tested here.</li>
+      <li><strong>Only pages with real click volume are covered.</strong> 24.7% of eligible pages had 5+ March clicks and could be labeled; the results say nothing about low-traffic pages.</li>
+      <li><strong>The baseline ranked below chance</strong> (see Results). Its score also mixes two unrelated scales — estimated clicks for <code>snippet_fix</code>, a weighted session count for <code>content_fix</code> — with an arbitrary weighting between them. Part of "the model beat the rule" is that the rule's ranking was weak to begin with.</li>
+      <li><strong>Missing engagement was filled with 0.</strong> About a quarter of labeled pages (24.6%) had no GA4 sessions; their engagement rate was set to 0, which treats "no traffic data" the same as "visitors came and none engaged."</li>
+      <li><strong>Features are close to the label.</strong> <code>gsc_clicks</code> and <code>ctr</code> come from the same March clicks the label is built from — known before the decision point, but part of the signal may just restate "pages with few clicks can lose a large share of them."</li>
+    </ul>
+
+    <figure>
+      <img src="work/figures/capstone_fold_spread.png" alt="Line chart showing Precision@50 for the rule, logistic regression, and random forest across 5 individual folds, showing wide variation.">
+      <figcaption>Fig. 2 — Precision@50 by individual fold (higher is better). Fold 4 is the clearest case: both models underperform the rule, and random forest falls below the random-pick line entirely. Supports the fold-count in Claim 1.</figcaption>
+    </figure>
+
+    <blockquote class="pull">
+      <span class="tag">Results vary a lot by fold</span>
+      <p>On the weakest fold, logistic regression scored 0.42 and random forest scored 0.26 — both below the rule's 0.58 on that same fold. A single average obscures this. Treat the headline numbers as a rough band, not a precise measurement.</p>
+    </blockquote>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="recommendations">
+    <div class="sec-head"><span class="sec-num">VI.</span><h2 class="section-title">Ranked recommendations</h2></div>
+
+    <p>The final model is fit once on all 28,805 labeled pages, then used to score the full 116,512-page March population. Every page gets two independent reads of its risk — the rule's reason code (a named problem: low CTR vs. peers, or low engagement) and the model's out-of-sample score. <code>HIGH_RISK_CUTOFF</code> (0.6084) marks the top 10% of this population's scores, recomputed fresh each cycle rather than hardcoded.</p>
+
+    <dl class="archetypes">
+      <div><span class="n">11,210</span><dt>confirmed_risk</dt><dd>Rule flagged, model agrees. Action: <code>review_before_revert</code>.</dd></div>
+      <div><span class="n">442</span><dt>quiet_riser</dt><dd>Model flags, rule misses — the rule's structural blind spot. Action: <code>investigate_quiet_risk</code>.</dd></div>
+      <div><span class="n">76,547</span><dt>flagged_lower_urgency</dt><dd>Rule flagged, model isn't worried. Action: <code>verify_then_review</code>.</dd></div>
+      <div><span class="n">28,313</span><dt>stable</dt><dd>Neither signal is worried. Action: <code>monitor_only</code>.</dd></div>
+    </dl>
+
+    <figure>
+      <img src="work/figures/capstone_archetype_mix.png" alt="Horizontal bar chart of page counts across the four archetypes: flagged_lower_urgency, stable, confirmed_risk, quiet_riser.">
+      <figcaption>Fig. 3 — Archetype mix across the full March-eligible population (n=116,512). <code>quiet_riser</code> is small by construction — see below.</figcaption>
+    </figure>
+
+    <p><code>quiet_riser</code> is small by construction — the rule and model mostly agree, so the cases the model alone catches are rare. They're also the most interesting: the top-ranked page in this run (score 0.92) has 244,931 impressions and a 0.27% CTR, sitting at 11.6% engagement — just above the rule's 10% cutoff, which is why the rule missed it.</p>
+
+    <h3>Who this is for</h3>
+    <p>A reviewer with fixed weekly review capacity, deciding which pages to look at first — not deciding what change to make once they get there.</p>
+
+    <h3>Where it stops being valid</h3>
+    <ul>
+      <li><strong>Precision is 0.59, not 0.90.</strong> At this precision, a meaningful share of pages ranked as risky will not actually decline. The queue orders review priority; it does not confirm outcomes.</li>
+      <li><strong>The cutoff is population-relative,</strong> not a fixed risk scale. Re-running on a different month produces a different cutoff value even if nothing about underlying page risk changed.</li>
+      <li><strong>The base rate itself is unstable.</strong> Feb→March decline rate was 0.313; March→April was 0.545 — a +0.232 shift between adjacent windows using the identical rule and label definition. A queue built this cycle should not be assumed to carry next cycle's base rate.</li>
+    </ul>
+
+    <blockquote class="pull">
+      <span class="tag">The no-go list</span>
+      <p>This playbook must never auto-edit, auto-revert, or auto-publish a content change. Every action name starts with a human verb on purpose — the queue tells a reviewer where to look; it does not act. The cutoff must never be hardcoded from a past run.</p>
+    </blockquote>
+
+    <h3>Monitoring</h3>
+    <p>Two checks, so the queue can tell you when it's gone stale, run here on Feb vs. March as a demonstration:</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Check</th><th>Feb</th><th>March</th><th class="num">Shift</th></tr></thead>
+      <tbody>
+        <tr><td>Eligible pages</td><td>93,871</td><td>116,512</td><td class="num">+24.1%</td></tr>
+        <tr><td>Decline base rate <span style="color:var(--ink-soft); font-style:italic;">(vs. following month)</span></td><td>0.313</td><td>0.545</td><td class="num">+0.232</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Against a proposed ±0.15 alarm threshold on base-rate shift, this cycle's alarm would have fired. The action-mix also shifted toward <code>content_fix</code> (+6.3 points) and away from <code>monitor</code> (−5.0 points) — a signal visible before any outcome data was knowable.</p>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="reproducibility">
+    <div class="sec-head"><span class="sec-num">VII.</span><h2 class="section-title">Reproducibility</h2></div>
+    <p>Every number, table, and figure in this paper traces back to one notebook, run top to bottom — there's no separate result-to-notebook map to give, because there's only the one run.</p>
+    <p><strong>Seeds:</strong> <code>random_state=0</code> for both the final deployed model and every cross-validation fold. <strong>Environment:</strong> Python 3, scikit-learn, pandas, DuckDB, run in Google Colab. <strong>Data access:</strong> <code>FlyRank/internship-warehouse</code> on Hugging Face, read via a gated token.</p>
+    <div class="repro-links">
+      <a href="https://github.com/Prithviraj-chw/FlyRank-Starter/blob/main/work/notebooks/capstone.ipynb">work/notebooks/capstone.ipynb — the full analysis notebook</a>
+      <a href="https://github.com/Prithviraj-chw/FlyRank-Starter/blob/main/work/outputs/capstone_ranked_queue.csv">work/outputs/capstone_ranked_queue.csv — the full 116,512-row ranked queue</a>
+      <a href="https://github.com/Prithviraj-chw/FlyRank-Starter/blob/main/work/figures/capstone_metrics.json">work/figures/capstone_metrics.json — summary metrics backing this paper's numbers</a>
+      <a href="https://github.com/Prithviraj-chw/FlyRank-Starter">github.com/Prithviraj-chw/FlyRank-Starter — full repository</a>
+    </div>
+  </section>
+
+  <hr class="rule full">
+
+  <section id="acknowledgments">
+    <div class="sec-head"><span class="sec-num">VIII.</span><h2 class="section-title">Acknowledgments &amp; data credit</h2></div>
+    <p>Built on the <a href="https://flyrank.ai">FlyRank ML Internship dataset</a>. Prepared as the capstone for FlyRank's ML Internship, Lane 2 (Refresh / Content Opportunity Scoring).</p>
+  </section>
+
+  <footer>
+    <p>github.com/Prithviraj-chw/FlyRank-Starter</p>
+  </footer>
+
+</div>
+</body>
+</html>
